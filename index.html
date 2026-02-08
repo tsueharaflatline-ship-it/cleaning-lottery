@@ -308,7 +308,7 @@
                 opacity: 1;
             }
             100% {
-                transform: translateX(1000px) translateY(500px);
+                transform: translateX(min(1000px, 80vw)) translateY(min(500px, 60vh));
                 opacity: 0;
             }
         }
@@ -335,7 +335,7 @@
                 opacity: 1;
             }
             100% {
-                transform: translateX(1500px) translateY(800px) scale(1.5);
+                transform: translateX(min(1500px, 90vw)) translateY(min(800px, 80vh)) scale(1.5);
                 opacity: 0;
             }
         }
@@ -454,6 +454,10 @@
         }
 
         @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+
             .container {
                 padding: 30px 24px;
             }
@@ -467,17 +471,19 @@
             }
 
             .lottery-box {
-                width: 200px;
-                height: 200px;
-                font-size: 5em;
+                width: 220px;
+                height: 220px;
+                font-size: 5.5em;
+                border-radius: 28px;
             }
 
             .lottery-text {
-                font-size: 2.5em;
+                font-size: 2.8em;
             }
 
             .drumroll-text {
-                font-size: 1.4em;
+                font-size: 1.6em;
+                letter-spacing: 0.3em;
             }
 
             .button-container {
@@ -486,6 +492,22 @@
 
             button {
                 width: 100%;
+                padding: 14px 24px;
+                font-size: 0.95em;
+            }
+
+            .star {
+                /* モバイルでは星を少し大きく見やすく */
+                min-width: 2px !important;
+                min-height: 2px !important;
+            }
+
+            .shooting-star {
+                height: 3px; /* モバイルでは流れ星を太く */
+            }
+
+            .big-shooting-star {
+                height: 5px;
             }
         }
     </style>
@@ -673,7 +695,8 @@
                 bigStar.className = 'big-shooting-star';
                 bigStar.style.left = '10%';
                 bigStar.style.top = '20%';
-                bigStar.style.width = '300px';
+                const width = window.innerWidth < 600 ? 200 : 300;
+                bigStar.style.width = width + 'px';
                 animationDiv.appendChild(bigStar);
                 
                 setTimeout(() => {
@@ -745,13 +768,15 @@
 
         function createStaticStars(container) {
             // 静止している星を生成
-            for (let i = 0; i < 100; i++) {
+            const starCount = window.innerWidth < 600 ? 60 : 100; // モバイルは少し少なめに
+            for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.width = (Math.random() * 2 + 1) + 'px';
-                star.style.height = star.style.width;
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
                 star.style.animationDelay = Math.random() * 3 + 's';
                 container.appendChild(star);
             }
@@ -761,9 +786,12 @@
             const shootingStar = () => {
                 const star = document.createElement('div');
                 star.className = 'shooting-star';
-                star.style.left = Math.random() * 50 + '%';
-                star.style.top = Math.random() * 50 + '%';
-                star.style.width = (Math.random() * 100 + 100) + 'px';
+                star.style.left = Math.random() * 40 + '%';
+                star.style.top = Math.random() * 40 + '%';
+                const width = window.innerWidth < 600 ? 
+                    Math.random() * 80 + 80 : 
+                    Math.random() * 100 + 100;
+                star.style.width = width + 'px';
                 container.appendChild(star);
 
                 setTimeout(() => {
@@ -777,7 +805,8 @@
             const interval = setInterval(shootingStar, 400);
             
             // 最初に数個生成
-            for (let i = 0; i < 5; i++) {
+            const initialCount = window.innerWidth < 600 ? 3 : 5;
+            for (let i = 0; i < initialCount; i++) {
                 setTimeout(shootingStar, i * 200);
             }
 
