@@ -231,8 +231,15 @@
         }
 
         .lottery-animation.reveal-space {
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            background: radial-gradient(ellipse at center, #1b2735 0%, #090a0f 100%);
             transition: background 1.5s ease-in;
+        }
+
+        /* アニメーション中はスクロール禁止 */
+        body.lottery-active {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
 
         @keyframes fadeIn {
@@ -283,8 +290,15 @@
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
+            0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
+        }
+
+        /* モバイルでは星を少し大きく */
+        @media (max-width: 767px) {
+            .star {
+                box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+            }
         }
 
         .shooting-star {
@@ -293,22 +307,23 @@
             background: linear-gradient(90deg, #fff, transparent);
             box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
             opacity: 0;
+            will-change: transform, opacity;
         }
 
         .shooting-star.shoot {
-            animation: shoot 1.5s ease-out forwards;
+            animation: shootMobile 1.5s ease-out forwards;
         }
 
-        @keyframes shoot {
+        @keyframes shootMobile {
             0% {
-                transform: translateX(0) translateY(0);
+                transform: translate(0, 0);
                 opacity: 0;
             }
             10% {
                 opacity: 1;
             }
             100% {
-                transform: translateX(min(1000px, 80vw)) translateY(min(500px, 60vh));
+                transform: translate(70vw, 40vh);
                 opacity: 0;
             }
         }
@@ -320,23 +335,63 @@
             box-shadow: 0 0 20px 4px rgba(255, 255, 255, 1),
                         0 0 40px 8px rgba(102, 126, 234, 0.8);
             opacity: 0;
+            will-change: transform, opacity;
         }
 
         .big-shooting-star.shoot {
-            animation: bigShoot 2s ease-out forwards;
+            animation: bigShootMobile 2s ease-out forwards;
         }
 
-        @keyframes bigShoot {
+        @keyframes bigShootMobile {
             0% {
-                transform: translateX(0) translateY(0) scale(1);
+                transform: translate(0, 0) scale(1);
                 opacity: 0;
             }
             5% {
                 opacity: 1;
             }
             100% {
-                transform: translateX(min(1500px, 90vw)) translateY(min(800px, 80vh)) scale(1.5);
+                transform: translate(80vw, 50vh) scale(1.2);
                 opacity: 0;
+            }
+        }
+
+        /* PC用のアニメーション */
+        @media (min-width: 768px) {
+            .shooting-star.shoot {
+                animation: shootDesktop 1.5s ease-out forwards;
+            }
+
+            @keyframes shootDesktop {
+                0% {
+                    transform: translate(0, 0);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(600px, 350px);
+                    opacity: 0;
+                }
+            }
+
+            .big-shooting-star.shoot {
+                animation: bigShootDesktop 2s ease-out forwards;
+            }
+
+            @keyframes bigShootDesktop {
+                0% {
+                    transform: translate(0, 0) scale(1);
+                    opacity: 0;
+                }
+                5% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(900px, 500px) scale(1.5);
+                    opacity: 0;
+                }
             }
         }
 
@@ -471,19 +526,19 @@
             }
 
             .lottery-box {
-                width: 220px;
-                height: 220px;
-                font-size: 5.5em;
-                border-radius: 28px;
+                width: 200px;
+                height: 200px;
+                font-size: 5em;
+                border-radius: 24px;
             }
 
             .lottery-text {
-                font-size: 2.8em;
+                font-size: 2.5em;
             }
 
             .drumroll-text {
-                font-size: 1.6em;
-                letter-spacing: 0.3em;
+                font-size: 1.5em;
+                letter-spacing: 0.25em;
             }
 
             .button-container {
@@ -496,18 +551,21 @@
                 font-size: 0.95em;
             }
 
-            .star {
-                /* モバイルでは星を少し大きく見やすく */
-                min-width: 2px !important;
-                min-height: 2px !important;
-            }
-
-            .shooting-star {
-                height: 3px; /* モバイルでは流れ星を太く */
-            }
-
+            .shooting-star,
             .big-shooting-star {
-                height: 5px;
+                height: 3px; /* モバイルでは流れ星を少し太く */
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .lottery-box {
+                width: 240px;
+                height: 240px;
+                font-size: 6em;
+            }
+
+            .lottery-text {
+                font-size: 3em;
             }
         }
     </style>
@@ -681,21 +739,32 @@
             // 結果を隠す
             document.getElementById('results').classList.remove('show');
 
+            // 画面を一番上にスクロール
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // スクロール完了を待ってからアニメーション開始（スムーズに見せるため）
+            setTimeout(() => {
+                startLotteryAnimation(males, females, button);
+            }, 300);
+        }
+
+        function startLotteryAnimation(males, females, button) {
             // アニメーション開始
             const animationDiv = document.getElementById('lottery-animation');
             const starsContainer = animationDiv.querySelector('.stars');
             const centerContent = animationDiv.querySelector('.center-content');
             
-            // 最初は真っ暗
+            // 最初は真っ暗 & スクロール禁止
             animationDiv.classList.add('active');
+            document.body.classList.add('lottery-active');
 
             // 0.5秒後：最初の大きな流れ星がキラーン！
             setTimeout(() => {
                 const bigStar = document.createElement('div');
                 bigStar.className = 'big-shooting-star';
                 bigStar.style.left = '10%';
-                bigStar.style.top = '20%';
-                const width = window.innerWidth < 600 ? 200 : 300;
+                bigStar.style.top = '15%';
+                const width = window.innerWidth < 768 ? 150 : 300;
                 bigStar.style.width = width + 'px';
                 animationDiv.appendChild(bigStar);
                 
@@ -760,6 +829,9 @@
                     starsContainer.classList.remove('appear');
                     centerContent.classList.remove('appear');
                     starsContainer.innerHTML = '';
+                    
+                    // スクロール禁止を解除
+                    document.body.classList.remove('lottery-active');
                 }, 500);
                 
                 button.disabled = false;
@@ -768,13 +840,19 @@
 
         function createStaticStars(container) {
             // 静止している星を生成
-            const starCount = window.innerWidth < 600 ? 60 : 100; // モバイルは少し少なめに
+            const isMobile = window.innerWidth < 768;
+            const starCount = isMobile ? 80 : 120;
+            
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                const size = Math.random() * 2 + 1;
+                
+                // モバイルでは星を少し大きく
+                const size = isMobile ? 
+                    Math.random() * 2 + 1.5 : 
+                    Math.random() * 2 + 1;
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
                 star.style.animationDelay = Math.random() * 3 + 's';
@@ -783,15 +861,22 @@
         }
 
         function createShootingStars(container) {
+            const isMobile = window.innerWidth < 768;
+            
             const shootingStar = () => {
                 const star = document.createElement('div');
                 star.className = 'shooting-star';
-                star.style.left = Math.random() * 40 + '%';
-                star.style.top = Math.random() * 40 + '%';
-                const width = window.innerWidth < 600 ? 
-                    Math.random() * 80 + 80 : 
+                
+                // 画面の左上〜中央あたりからスタート
+                star.style.left = Math.random() * 30 + '%';
+                star.style.top = Math.random() * 30 + '%';
+                
+                // サイズ調整
+                const width = isMobile ? 
+                    Math.random() * 60 + 60 : 
                     Math.random() * 100 + 100;
                 star.style.width = width + 'px';
+                
                 container.appendChild(star);
 
                 setTimeout(() => {
@@ -802,12 +887,12 @@
             };
 
             // 流れ星を定期的に生成
-            const interval = setInterval(shootingStar, 400);
+            const interval = setInterval(shootingStar, isMobile ? 500 : 400);
             
             // 最初に数個生成
-            const initialCount = window.innerWidth < 600 ? 3 : 5;
+            const initialCount = isMobile ? 4 : 6;
             for (let i = 0; i < initialCount; i++) {
-                setTimeout(shootingStar, i * 200);
+                setTimeout(shootingStar, i * 250);
             }
 
             return interval;
