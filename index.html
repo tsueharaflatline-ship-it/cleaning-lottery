@@ -832,6 +832,12 @@
                     
                     // スクロール禁止を解除
                     document.body.classList.remove('lottery-active');
+                    
+                    // 結果にスクロール（少し遅延させてスムーズに）
+                    setTimeout(() => {
+                        const resultsDiv = document.getElementById('results');
+                        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
                 }, 500);
                 
                 button.disabled = false;
@@ -986,7 +992,6 @@
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '<h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 28px; text-align: center; font-size: 1.8em; font-weight: 800; letter-spacing: -0.02em;">📋 割り当て結果</h2>';
             resultsDiv.classList.add('show');
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             // 1つずつアニメーション付きで表示
             assignments.forEach((assignment, index) => {
