@@ -7,20 +7,13 @@
     <style>
         :root {
             --primary: #4A90E2;
-            --secondary: #67B26F;
-            --accent: #F5A623;
             --bg: #F8F9FA;
             --text-main: #333333;
             --text-sub: #666666;
             --white: #ffffff;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
@@ -36,67 +29,48 @@
             background: var(--white);
             border-radius: 16px;
             padding: 60px 40px;
-            box-shadow: var-card-shadow;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        h1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        h1 span {
-            font-size: 14px;
-            display: block;
-            color: var(--primary);
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-        }
+        header { text-align: center; margin-bottom: 50px; }
+        header span { font-size: 12px; color: var(--primary); letter-spacing: 0.3em; text-transform: uppercase; font-weight: bold; }
+        h1 { font-size: 26px; font-weight: 700; letter-spacing: 0.05em; margin-top: 5px; }
 
         .info {
             background: #f0f4f8;
-            padding: 20px;
+            padding: 18px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-sub);
             margin-bottom: 40px;
             border-left: 4px solid var(--primary);
         }
 
         .section-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             color: var(--text-main);
             border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .name-inputs {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 40px;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 14px;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
-            transition: all 0.2s ease;
-            background: #fff;
+            transition: all 0.2s;
         }
 
         input[type="text"]:focus {
@@ -108,197 +82,241 @@
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-top: 20px;
         }
 
         button {
-            padding: 15px 35px;
+            padding: 14px 30px;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
             border: none;
         }
 
-        .btn-main {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-        }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
 
-        .btn-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
-        }
+        .btn-sub { background: #eee; color: var(--text-sub); }
+        .btn-sub:hover { background: #e5e5e5; }
 
-        .btn-sub {
-            background: #fff;
-            color: var(--text-sub);
-            border: 1px solid #ddd;
-        }
-
-        .btn-sub:hover {
-            background: #f9f9f9;
-        }
-
-        /* 抽選アニメーションのモダン化 */
+        /* 抽選中オーバーレイ */
         .lottery-animation {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
 
-        .lottery-animation.active {
-            display: flex;
-        }
+        .lottery-animation.active { display: flex; }
 
-        .loader {
-            text-align: center;
-        }
+        .loader { text-align: center; }
+        .loader-icon { font-size: 50px; animation: spin 1s infinite linear; display: inline-block; margin-bottom: 15px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .loader-icon {
-            font-size: 60px;
-            animation: bounce 0.6s infinite alternate;
-            margin-bottom: 20px;
-        }
-
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-20px); }
-        }
-
-        /* 結果表示の洗練 */
+        /* 結果表示 */
         .results {
-            margin-top: 60px;
-            padding-top: 40px;
+            margin-top: 50px;
+            padding-top: 30px;
             border-top: 2px dashed #eee;
         }
 
         .result-item {
             display: flex;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
             background: #fff;
             border: 1px solid #f0f0f0;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            animation: fadeInUp 0.5s ease forwards;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            animation: fadeInUp 0.4s ease forwards;
         }
 
         .duty-tag {
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
+            background: #f0f4f8;
+            color: var(--primary);
+            padding: 4px 10px;
             border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-right: 20px;
-            min-width: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 15px;
+            min-width: 90px;
             text-align: center;
+            border: 1px solid rgba(74, 144, 226, 0.2);
         }
 
-        .assigned-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
+        .assigned-name { font-weight: 600; font-size: 15px; }
+
+        .error { color: #d9534f; background: #fdf7f7; padding: 10px; border-radius: 6px; margin-bottom: 20px; text-align: center; font-size: 13px; font-weight: bold; }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        @media (max-width: 600px) {
-            .container { padding: 40px 20px; }
-            .name-inputs { grid-template-columns: 1fr 1fr; }
-            button { width: 100%; }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <span>OFFICE CLEANING</span>
-            <h1>🧹 掃除当番くじ引き</h1>
-        </header>
 
-        <div class="info">
-            男性1〜8人、女性1〜4人の名前を入力してください。名前は自動で保存されます。
-        </div>
+<div class="container">
+    <header>
+        <span>OFFICE CLEANING</span>
+        <h1>🧹 掃除当番くじ引き</h1>
+    </header>
 
-        <div class="input-section">
-            <h3 class="section-title">MEN / 男性メンバー</h3>
-            <div class="name-inputs" id="maleInputs">
-                <input type="text" id="male1" placeholder="Name 01">
-                <input type="text" id="male2" placeholder="Name 02">
-                <input type="text" id="male3" placeholder="Name 03">
-                <input type="text" id="male4" placeholder="Name 04">
-                <input type="text" id="male5" placeholder="Name 05">
-                <input type="text" id="male6" placeholder="Name 06">
-                <input type="text" id="male7" placeholder="Name 07">
-                <input type="text" id="male8" placeholder="Name 08">
-            </div>
+    <div id="error-message"></div>
 
-            <h3 class="section-title">WOMEN / 女性メンバー</h3>
-            <div class="name-inputs" id="femaleInputs">
-                <input type="text" id="female1" placeholder="Name 01">
-                <input type="text" id="female2" placeholder="Name 02">
-                <input type="text" id="female3" placeholder="Name 03">
-                <input type="text" id="female4" placeholder="Name 04">
-            </div>
-        </div>
-
-        <div class="button-container">
-            <button id="lotteryButton" class="btn-main" onclick="drawLots()">抽選を開始する</button>
-            <button class="btn-sub" onclick="saveNames()">保存</button>
-            <button class="btn-sub" onclick="clearNames()">クリア</button>
-        </div>
-
-        <div id="lottery-animation" class="lottery-animation">
-            <div class="loader">
-                <div class="loader-icon">🎲</div>
-                <div style="font-weight: 700; letter-spacing: 0.2em; color: var(--primary)">SHUFFLING...</div>
-            </div>
-        </div>
-
-        <div id="error-message"></div>
-        <div id="results" class="results" style="display:none;"></div>
+    <div class="info">
+        男性・女性それぞれの名前を入力してください。ブラウザに自動保存されます。
     </div>
 
-    <script>
-        // ロジック部分は元のコードをベースに、デザインに合わせた表示関数に差し替え
-        // (元のスクリプトをそのまま貼り付けても動きますが、displayResultsWithAnimationだけ以下のものに差し替えると綺麗です)
+    <div class="input-section">
+        <h3 class="section-title">MEN <span>最大8名</span></h3>
+        <div class="name-inputs">
+            <input type="text" id="male1" placeholder="名前を入力">
+            <input type="text" id="male2" placeholder="名前を入力">
+            <input type="text" id="male3" placeholder="名前を入力">
+            <input type="text" id="male4" placeholder="名前を入力">
+            <input type="text" id="male5" placeholder="名前を入力">
+            <input type="text" id="male6" placeholder="名前を入力">
+            <input type="text" id="male7" placeholder="名前を入力">
+            <input type="text" id="male8" placeholder="名前を入力">
+        </div>
 
-        function displayResultsWithAnimation(assignments) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.style.display = 'block';
-            resultsDiv.innerHTML = '<h3 class="section-title" style="text-align:center">TODAY\'S ASSIGNMENT</h3>';
+        <h3 class="section-title">WOMEN <span>最大4名</span></h3>
+        <div class="name-inputs">
+            <input type="text" id="female1" placeholder="名前を入力">
+            <input type="text" id="female2" placeholder="名前を入力">
+            <input type="text" id="female3" placeholder="名前を入力">
+            <input type="text" id="female4" placeholder="名前を入力">
+        </div>
+    </div>
 
-            assignments.forEach((assignment, index) => {
-                setTimeout(() => {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'result-item';
-                    resultItem.innerHTML = `
-                        <div class="duty-tag">${assignment.duty}</div>
-                        <div class="assigned-name">${assignment.people.join(' , ')}</div>
-                    `;
-                    resultsDiv.appendChild(resultItem);
-                }, index * 200);
-            });
+    <div class="button-container">
+        <button id="lotteryButton" class="btn-main" onclick="drawLots()">抽選を開始する</button>
+        <button class="btn-sub" onclick="saveNames()">保存</button>
+        <button class="btn-sub" onclick="clearNames()">クリア</button>
+    </div>
+
+    <div id="results" class="results" style="display:none;"></div>
+</div>
+
+<div id="lottery-animation" class="lottery-animation">
+    <div class="loader">
+        <div class="loader-icon">⏳</div>
+        <div style="font-weight: 700; letter-spacing: 0.2em; color: var(--primary)">SHUFFLING...</div>
+    </div>
+</div>
+
+<script>
+    // 起動時にロード
+    window.addEventListener('DOMContentLoaded', loadNames);
+
+    function getInputs() {
+        const males = [];
+        const females = [];
+        for (let i = 1; i <= 8; i++) {
+            const val = document.getElementById(`male${i}`).value.trim();
+            if (val) males.push(val);
         }
+        for (let i = 1; i <= 4; i++) {
+            const val = document.getElementById(`female${i}`).value.trim();
+            if (val) females.push(val);
+        }
+        return { males, females };
+    }
 
-        // ※ 他の drawLots, saveNames などの関数は元のコードのままで動作します
-        // ただし、アニメーションの終了待ち時間を少し短く（3秒程度）に調整すると、ユーザー体験が向上します。
-    </script>
+    function saveNames() {
+        const data = getInputs();
+        localStorage.setItem('cleaningNames', JSON.stringify(data));
+        alert('名前を保存しました');
+    }
+
+    function loadNames() {
+        const saved = localStorage.getItem('cleaningNames');
+        if (!saved) return;
+        const { males, females } = JSON.parse(saved);
+        males.forEach((n, i) => { if(document.getElementById(`male${i+1}`)) document.getElementById(`male${i+1}`).value = n; });
+        females.forEach((n, i) => { if(document.getElementById(`female${i+1}`)) document.getElementById(`female${i+1}`).value = n; });
+    }
+
+    function clearNames() {
+        if (!confirm('入力をクリアしますか？')) return;
+        for (let i = 1; i <= 8; i++) document.getElementById(`male${i}`).value = '';
+        for (let i = 1; i <= 4; i++) document.getElementById(`female${i}`).value = '';
+        localStorage.removeItem('cleaningNames');
+    }
+
+    function drawLots() {
+        const { males, females } = getInputs();
+        const err = document.getElementById('error-message');
+        
+        if (males.length < 1 || females.length < 1) {
+            err.innerHTML = '<div class="error">⚠️ 男女それぞれ1名以上入力してください</div>';
+            return;
+        }
+        err.innerHTML = '';
+
+        // アニメーション開始
+        const anim = document.getElementById('lottery-animation');
+        anim.classList.add('active');
+
+        setTimeout(() => {
+            anim.classList.remove('active');
+            const assignments = performLogic(males, females);
+            displayResults(assignments);
+        }, 1500); // 1.5秒だけ待機
+    }
+
+    function performLogic(males, females) {
+        const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+        let sMales = shuffle(males);
+        let sFemales = shuffle(females);
+
+        const results = [];
+        // トイレ
+        results.push({ duty: '女子トイレ', people: [sFemales.pop()] });
+        results.push({ duty: '男子トイレ', people: [sMales.pop()] });
+
+        // その他
+        let rest = shuffle([...sMales, ...sFemales]);
+        const tasks = ['フロア', '会議室・神棚', '玄関・サーバー', '可燃ゴミ', '資源ゴミ'];
+        
+        tasks.forEach(t => {
+            if (rest.length > 0) results.push({ duty: t, people: [rest.pop()] });
+        });
+
+        // 余りを割り振る
+        let idx = 0;
+        while (rest.length > 0) {
+            results[(idx % tasks.length) + 2].people.push(rest.pop());
+            idx++;
+        }
+        return results;
+    }
+
+    function displayResults(assignments) {
+        const resDiv = document.getElementById('results');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = '<h3 class="section-title">RESULT <span>本日の担当</span></h3>';
+
+        assignments.forEach((a, i) => {
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `<div class="duty-tag">${a.duty}</div><div class="assigned-name">${a.people.join(' , ')}</div>`;
+                resDiv.appendChild(div);
+            }, i * 150);
+        });
+        resDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
 </body>
 </html>
