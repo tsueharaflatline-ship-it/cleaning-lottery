@@ -3,264 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>掃除当番激アツ抽選</title>
+    <title>掃除当番抽選 </title>
     <style>
         :root {
-            --gold: linear-gradient(45deg, #B8860B, #FFD700, #DBAC0D, #DAA520);
-            --rainbow: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+            --accent: #4A90E2;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
         }
 
         body {
-            font-family: "Hiragino Sans", "Meiryo", sans-serif;
-            background-color: #111;
-            color: #eee;
+            font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif;
+            background-color: var(--dark-bg);
+            color: #e0e0e0;
             margin: 0;
             overflow-x: hidden;
-            transition: background 0.5s;
         }
 
-        /* 激震アニメーション */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        /* 振動アニメーション */
+        @keyframes rumble {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            75% { transform: translate(2px, -2px); }
+            100% { transform: translate(0,0); }
         }
-
-        .shaking { animation: shake 0.1s infinite; }
+        .rumbling { animation: rumble 0.1s infinite; }
 
         .container {
             max-width: 600px;
-            margin: 20px auto;
-            background: #222;
-            padding: 30px;
+            margin: 40px auto;
+            padding: 40px 20px;
+            background: var(--card-bg);
             border-radius: 20px;
-            border: 2px solid #444;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         h1 {
             text-align: center;
             font-size: 24px;
-            background: var(--gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-        }
-
-        .input-group { margin-bottom: 20px; }
-        .section-title { font-size: 14px; color: #FFD700; margin-bottom: 10px; border-left: 4px solid #FFD700; padding-left: 10px; }
-
-        .name-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        input[type="text"] {
-            background: #333;
-            border: 1px solid #555;
+            letter-spacing: 0.2em;
+            margin-bottom: 40px;
             color: #fff;
-            padding: 10px;
-            border-radius: 5px;
         }
 
-        .btn-container { text-align: center; margin-top: 20px; }
-        #lotteryButton {
-            background: var(--gold);
-            color: #000;
-            font-weight: 900;
-            font-size: 20px;
-            padding: 15px 40px;
+        .section-title {
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .name-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
             border: none;
             border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            transition: 0.2s;
+            transition: 0.3s;
         }
 
-        #lotteryButton:active { transform: scale(0.95); }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* 演出レイヤー */
-        #overlay {
+        /* 暗転レイヤー */
+        #blackout {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: #000;
+            z-index: 10000;
+            overflow: hidden;
         }
 
-        .lottery-vibe {
-            font-size: 80px;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 20px #FFD700;
+        /* 流れ星 */
+        .shooting-star {
+            position: absolute;
+            top: 20%;
+            left: -10%;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(90deg, #fff, transparent);
+            filter: drop-shadow(0 0 10px #fff);
+            transform: rotate(25deg);
         }
 
-        .rainbow-bg {
-            background: var(--rainbow);
-            background-size: 1800% 1800%;
-            animation: rainbowMove 2s ease infinite;
+        @keyframes shoot {
+            0% { left: -20%; top: 20%; opacity: 1; }
+            100% { left: 120%; top: 60%; opacity: 0; }
         }
-
-        @keyframes rainbowMove {
-            0%{background-position:0% 82%}
-            50%{background-position:100% 19%}
-            100%{background-position:0% 82%}
-        }
+        .anim-shoot { animation: shoot 1.2s ease-out forwards; }
 
         /* 結果表示 */
-        #results {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .result-card {
-            background: #333;
-            border-left: 5px solid #FFD700;
+        #results { margin-top: 50px; display: none; }
+        .result-item {
+            background: #2a2a2a;
+            padding: 15px 25px;
             margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 5px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
-            transform: scale(0);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            border-left: 4px solid var(--accent);
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
         }
 
-        @keyframes popIn { to { transform: scale(1); } }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        .duty { color: #FFD700; font-size: 14px; }
-        .name { font-size: 18px; color: #fff; }
-
-        .flash {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff;
-            z-index: 10000;
-            display: none;
-        }
+        .duty { color: var(--accent); font-weight: bold; font-size: 13px; }
+        .name { color: #fff; font-size: 16px; font-weight: 500; }
     </style>
 </head>
 <body id="body">
 
 <div class="container" id="mainContainer">
-    <h1>⚔️ 極・掃除当番抽選 ⚔️</h1>
+    <h1>CLEANING DUTY</h1>
     
-    <div class="input-group">
-        <p class="section-title">MEN（最大8名）</p>
+    <div class="input-section">
+        <p class="section-title">MEN</p>
         <div class="name-inputs">
-            <input type="text" id="m1" placeholder="男1"> <input type="text" id="m2" placeholder="男2">
-            <input type="text" id="m3" placeholder="男3"> <input type="text" id="m4" placeholder="男4">
-            <input type="text" id="m5" placeholder="男5"> <input type="text" id="m6" placeholder="男6">
-            <input type="text" id="m7" placeholder="男7"> <input type="text" id="m8" placeholder="男8">
+            <input type="text" id="m1" placeholder="NAME 01"> <input type="text" id="m2" placeholder="NAME 02">
+            <input type="text" id="m3" placeholder="NAME 03"> <input type="text" id="m4" placeholder="NAME 04">
+            <input type="text" id="m5" placeholder="NAME 05"> <input type="text" id="m6" placeholder="NAME 06">
+            <input type="text" id="m7" placeholder="NAME 07"> <input type="text" id="m8" placeholder="NAME 08">
+        </div>
+
+        <p class="section-title">WOMEN</p>
+        <div class="name-inputs">
+            <input type="text" id="f1" placeholder="NAME 01"> <input type="text" id="f2" placeholder="NAME 02">
+            <input type="text" id="f3" placeholder="NAME 03"> <input type="text" id="f4" placeholder="NAME 04">
         </div>
     </div>
 
-    <div class="input-group">
-        <p class="section-title">WOMEN（最大4名）</p>
-        <div class="name-inputs">
-            <input type="text" id="f1" placeholder="女1"> <input type="text" id="f2" placeholder="女2">
-            <input type="text" id="f3" placeholder="女3"> <input type="text" id="f4" placeholder="女4">
-        </div>
-    </div>
-
-    <div class="btn-container">
-        <button id="lotteryButton" onclick="startGigaLottery()">運命の抽選開始</button>
-    </div>
+    <button onclick="runStarLottery()">DRAW LOTS</button>
 
     <div id="results"></div>
 </div>
 
-<div id="overlay">
-    <div id="countdown" class="lottery-vibe">READY</div>
-    <div style="color: #FFD700; font-weight: bold; margin-top: 20px; letter-spacing: 5px;">SHUFFLING NOW...</div>
+<div id="blackout">
+    <div id="star" class="shooting-star"></div>
 </div>
 
-<div id="flash" class="flash"></div>
-
 <script>
-    // 名前ロード
+    // 保存と読み込み
     window.onload = () => {
-        const d = JSON.parse(localStorage.getItem('pachinko_cleaning') || '{}');
+        const d = JSON.parse(localStorage.getItem('star_cleaning') || '{}');
         if(d.m) d.m.forEach((n,i)=>document.getElementById(`m${i+1}`).value=n);
         if(d.f) d.f.forEach((n,i)=>document.getElementById(`f${i+1}`).value=n);
     };
 
-    function startGigaLottery() {
+    function runStarLottery() {
         const ms = [], fs = [];
-        for(let i=1;i<=8;i++) { const v=document.getElementById(`m${i}`).value; if(v) ms.push(v); }
-        for(let i=1;i<=4;i++) { const v=document.getElementById(`f${i}`).value; if(v) fs.push(v); }
+        for(let i=1;i<=8;i++){ const v=document.getElementById(`m${i}`).value; if(v) ms.push(v); }
+        for(let i=1;i<=4;i++){ const v=document.getElementById(`f${i}`).value; if(v) fs.push(v); }
 
-        if(ms.length<1 || fs.length<1) return alert("男女それぞれ1名以上必要ですぞ！");
+        if(ms.length < 1 || fs.length < 1) return alert("男女それぞれ入力してください。");
+        localStorage.setItem('star_cleaning', JSON.stringify({m:ms, f:fs}));
 
-        // 保存
-        localStorage.setItem('pachinko_cleaning', JSON.stringify({m:ms, f:fs}));
-
-        const overlay = document.getElementById('overlay');
-        const count = document.getElementById('countdown');
         const body = document.getElementById('body');
-        const flash = document.getElementById('flash');
-
-        // 演出開始
-        overlay.style.display = 'flex';
-        body.classList.add('shaking');
-
-        // カウントダウン演出
-        let steps = ["3", "2", "1", "激熱"];
-        let stepIdx = 0;
-        
-        const timer = setInterval(() => {
-            count.textContent = steps[stepIdx];
-            if(steps[stepIdx] === "激熱") {
-                overlay.classList.add('rainbow-bg');
-                count.style.fontSize = "120px";
-            }
-            stepIdx++;
-            if(stepIdx > steps.length) {
-                clearInterval(timer);
-                executeFinalReveal(ms, fs);
-            }
-        }, 800);
-    }
-
-    function executeFinalReveal(ms, fs) {
-        const flash = document.getElementById('flash');
-        const overlay = document.getElementById('overlay');
-        const body = document.getElementById('body');
+        const blackout = document.getElementById('blackout');
+        const star = document.getElementById('star');
         const resultsDiv = document.getElementById('results');
 
-        // フラッシュ！
-        flash.style.display = 'block';
+        // 1. 激しく振動
+        body.classList.add('rumbling');
+        resultsDiv.style.display = 'none';
+
         setTimeout(() => {
-            flash.style.display = 'none';
-            overlay.style.display = 'none';
-            overlay.classList.remove('rainbow-bg');
-            body.classList.remove('shaking');
-            
-            // ロジック実行
-            const assignments = runLogic(ms, fs);
-            
-            // 結果表示
-            resultsDiv.style.display = 'block';
-            resultsDiv.innerHTML = '<h2 style="color:#FFD700; text-align:center;">勝利の割り当て</h2>';
-            
-            assignments.forEach((a, i) => {
+            // 2. 暗転（振動停止）
+            body.classList.remove('rumbling');
+            blackout.style.display = 'block';
+
+            setTimeout(() => {
+                // 3. 流れ星
+                star.classList.add('anim-shoot');
+
                 setTimeout(() => {
-                    const card = document.createElement('div');
-                    card.className = 'result-card';
-                    card.innerHTML = `<span class="duty">${a.duty}</span><span class="name">${a.people.join(' & ')}</span>`;
-                    resultsDiv.appendChild(card);
-                }, i * 300);
-            });
-            resultsDiv.scrollIntoView({behavior:'smooth'});
-        }, 100);
+                    // 4. 暗転解除して結果表示
+                    blackout.style.display = 'none';
+                    star.classList.remove('anim-shoot');
+                    showResults(ms, fs);
+                }, 1500); // 流れ星が消えるまでの時間
+
+            }, 500); // 暗転してから星が流れるまでの溜め
+
+        }, 1200); // 振動している時間
+    }
+
+    function showResults(ms, fs) {
+        const resultsDiv = document.getElementById('results');
+        const assignments = runLogic(ms, fs);
+        
+        resultsDiv.innerHTML = '<h3 style="text-align:center; margin-bottom:20px;">ASSIGNMENT</h3>';
+        resultsDiv.style.display = 'block';
+
+        assignments.forEach((a, i) => {
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.style.transform = 'translateY(20px)';
+                div.innerHTML = `<span class="duty">${a.duty}</span><span class="name">${a.people.join(' & ')}</span>`;
+                resultsDiv.appendChild(div);
+            }, i * 200);
+        });
+        resultsDiv.scrollIntoView({behavior:'smooth'});
     }
 
     function runLogic(m, f) {
@@ -277,5 +249,6 @@
         return res;
     }
 </script>
+
 </body>
 </html>
