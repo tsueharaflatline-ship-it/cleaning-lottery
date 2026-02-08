@@ -3,167 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>掃除当番抽選 </title>
+    <title>掃除抽選</title>
     <style>
         :root {
-            --accent: #4A90E2;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
+            --accent: #007AFF;
+            --bg: #121212;
+            --input-bg: #252525;
+            --text: #ffffff;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif;
-            background-color: var(--dark-bg);
-            color: #e0e0e0;
-            margin: 0;
+            font-family: "Hiragino Sans", "Meiryo", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             overflow-x: hidden;
         }
 
-        /* 振動アニメーション */
+        /* 画面振動 */
         @keyframes rumble {
             0% { transform: translate(0,0); }
-            25% { transform: translate(2px, 2px); }
-            50% { transform: translate(-2px, -2px); }
-            75% { transform: translate(2px, -2px); }
+            25% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
+            75% { transform: translate(3px, -3px); }
             100% { transform: translate(0,0); }
         }
         .rumbling { animation: rumble 0.1s infinite; }
 
         .container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 40px 20px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            max-width: 500px; /* 入力欄がはみ出さないよう幅を調整 */
+            margin: 20px auto;
+            padding: 30px 15px;
+            background: #1e1e1e;
+            border-radius: 16px;
         }
 
         h1 {
             text-align: center;
-            font-size: 24px;
-            letter-spacing: 0.2em;
-            margin-bottom: 40px;
-            color: #fff;
+            font-size: 22px;
+            letter-spacing: 0.3em;
+            margin-bottom: 30px;
+            color: var(--text);
         }
 
         .section-title {
-            font-size: 12px;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            margin-bottom: 15px;
-            text-transform: uppercase;
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 10px;
+            padding-left: 5px;
         }
 
         .name-inputs {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr 1fr; /* 2列固定 */
+            gap: 8px; /* 隙間を詰めてサイズ調整 */
+            margin-bottom: 25px;
         }
 
         input[type="text"] {
-            background: #2a2a2a;
+            width: 100%;
+            background: var(--input-bg);
             border: 1px solid #333;
             color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        input[type="text"]:focus {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px; /* 少し小さくして視認性確保 */
             outline: none;
-            border-color: var(--accent);
         }
 
-        button {
+        input[type="text"]:focus { border-color: var(--accent); }
+
+        .btn-draw {
             width: 100%;
-            padding: 16px;
+            padding: 18px;
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 16px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 18px;
             cursor: pointer;
-            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
         }
 
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        /* 抽選オーバーレイ */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
 
-        /* 暗転レイヤー */
+        #shuffle-zone {
+            font-size: 40px;
+            font-weight: 900;
+            height: 60px;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            margin-bottom: 30px;
+        }
+
+        #countdown-zone {
+            font-size: 80px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* 暗転・流れ星 */
         #blackout {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 10000;
-            overflow: hidden;
+            z-index: 2000;
         }
 
-        /* 流れ星 */
         .shooting-star {
             position: absolute;
-            top: 20%;
-            left: -10%;
-            width: 150px;
-            height: 2px;
+            top: 10%; left: -20%;
+            width: 200px; height: 2px;
             background: linear-gradient(90deg, #fff, transparent);
-            filter: drop-shadow(0 0 10px #fff);
-            transform: rotate(25deg);
+            transform: rotate(20deg);
         }
-
         @keyframes shoot {
-            0% { left: -20%; top: 20%; opacity: 1; }
-            100% { left: 120%; top: 60%; opacity: 0; }
+            0% { left: -20%; top: 10%; opacity: 1; }
+            100% { left: 120%; top: 50%; opacity: 0; }
         }
-        .anim-shoot { animation: shoot 1.2s ease-out forwards; }
+        .anim-shoot { animation: shoot 1s ease-out forwards; }
 
-        /* 結果表示 */
-        #results { margin-top: 50px; display: none; }
+        /* 結果 */
+        #results { margin-top: 30px; display: none; }
         .result-item {
             background: #2a2a2a;
-            padding: 15px 25px;
-            margin-bottom: 10px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-left: 4px solid var(--accent);
-            animation: fadeIn 0.5s ease forwards;
-            opacity: 0;
+            animation: slideIn 0.3s ease forwards;
         }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .duty { color: var(--accent); font-weight: bold; font-size: 12px; }
+        .assigned { font-weight: 600; font-size: 15px; }
 
-        .duty { color: var(--accent); font-weight: bold; font-size: 13px; }
-        .name { color: #fff; font-size: 16px; font-weight: 500; }
     </style>
 </head>
 <body id="body">
 
-<div class="container" id="mainContainer">
-    <h1>CLEANING DUTY</h1>
+<div class="container">
+    <h1>掃除抽選</h1>
     
     <div class="input-section">
-        <p class="section-title">MEN</p>
+        <p class="section-title">男性メンバー</p>
         <div class="name-inputs">
-            <input type="text" id="m1" placeholder="NAME 01"> <input type="text" id="m2" placeholder="NAME 02">
-            <input type="text" id="m3" placeholder="NAME 03"> <input type="text" id="m4" placeholder="NAME 04">
-            <input type="text" id="m5" placeholder="NAME 05"> <input type="text" id="m6" placeholder="NAME 06">
-            <input type="text" id="m7" placeholder="NAME 07"> <input type="text" id="m8" placeholder="NAME 08">
+            <input type="text" id="m1" placeholder="名前"> <input type="text" id="m2" placeholder="名前">
+            <input type="text" id="m3" placeholder="名前"> <input type="text" id="m4" placeholder="名前">
+            <input type="text" id="m5" placeholder="名前"> <input type="text" id="m6" placeholder="名前">
+            <input type="text" id="m7" placeholder="名前"> <input type="text" id="m8" placeholder="名前">
         </div>
 
-        <p class="section-title">WOMEN</p>
+        <p class="section-title">女性メンバー</p>
         <div class="name-inputs">
-            <input type="text" id="f1" placeholder="NAME 01"> <input type="text" id="f2" placeholder="NAME 02">
-            <input type="text" id="f3" placeholder="NAME 03"> <input type="text" id="f4" placeholder="NAME 04">
+            <input type="text" id="f1" placeholder="名前"> <input type="text" id="f2" placeholder="名前">
+            <input type="text" id="f3" placeholder="名前"> <input type="text" id="f4" placeholder="名前">
         </div>
     </div>
 
-    <button onclick="runStarLottery()">DRAW LOTS</button>
+    <button class="btn-draw" onclick="startMegaLottery()">抽選開始</button>
 
     <div id="results"></div>
+</div>
+
+<div id="overlay">
+    <div id="shuffle-zone">---</div>
+    <div id="countdown-zone"></div>
 </div>
 
 <div id="blackout">
@@ -171,66 +193,83 @@
 </div>
 
 <script>
-    // 保存と読み込み
+    // 保存と復元
     window.onload = () => {
-        const d = JSON.parse(localStorage.getItem('star_cleaning') || '{}');
+        const d = JSON.parse(localStorage.getItem('mega_cleaning') || '{}');
         if(d.m) d.m.forEach((n,i)=>document.getElementById(`m${i+1}`).value=n);
         if(d.f) d.f.forEach((n,i)=>document.getElementById(`f${i+1}`).value=n);
     };
 
-    function runStarLottery() {
+    function startMegaLottery() {
         const ms = [], fs = [];
         for(let i=1;i<=8;i++){ const v=document.getElementById(`m${i}`).value; if(v) ms.push(v); }
         for(let i=1;i<=4;i++){ const v=document.getElementById(`f${i}`).value; if(v) fs.push(v); }
 
-        if(ms.length < 1 || fs.length < 1) return alert("男女それぞれ入力してください。");
-        localStorage.setItem('star_cleaning', JSON.stringify({m:ms, f:fs}));
+        if(ms.length < 1 || fs.length < 1) return alert("男女それぞれ入力してゾ");
+        localStorage.setItem('mega_cleaning', JSON.stringify({m:ms, f:fs}));
 
         const body = document.getElementById('body');
+        const overlay = document.getElementById('overlay');
+        const shuffleZone = document.getElementById('shuffle-zone');
+        const countdownZone = document.getElementById('countdown-zone');
         const blackout = document.getElementById('blackout');
         const star = document.getElementById('star');
         const resultsDiv = document.getElementById('results');
 
-        // 1. 激しく振動
-        body.classList.add('rumbling');
         resultsDiv.style.display = 'none';
+        body.classList.add('rumbling');
+        overlay.style.display = 'flex';
 
-        setTimeout(() => {
-            // 2. 暗転（振動停止）
-            body.classList.remove('rumbling');
-            blackout.style.display = 'block';
+        // 1. 名前シャッフル演出
+        const allNames = [...ms, ...fs];
+        const shuffleInterval = setInterval(() => {
+            shuffleZone.textContent = allNames[Math.floor(Math.random() * allNames.length)];
+        }, 50);
 
-            setTimeout(() => {
-                // 3. 流れ星
-                star.classList.add('anim-shoot');
+        // 2. カウントダウン
+        let count = 3;
+        countdownZone.textContent = count;
+        const countInterval = setInterval(() => {
+            count--;
+            if(count > 0) {
+                countdownZone.textContent = count;
+            } else {
+                clearInterval(countInterval);
+                clearInterval(shuffleInterval);
+                
+                // 3. 暗転
+                body.classList.remove('rumbling');
+                overlay.style.display = 'none';
+                blackout.style.display = 'block';
 
                 setTimeout(() => {
-                    // 4. 暗転解除して結果表示
-                    blackout.style.display = 'none';
-                    star.classList.remove('anim-shoot');
-                    showResults(ms, fs);
-                }, 1500); // 流れ星が消えるまでの時間
+                    // 4. 流れ星
+                    star.classList.add('anim-shoot');
 
-            }, 500); // 暗転してから星が流れるまでの溜め
-
-        }, 1200); // 振動している時間
+                    setTimeout(() => {
+                        // 5. 終了・結果表示
+                        blackout.style.display = 'none';
+                        star.classList.remove('anim-shoot');
+                        showResults(ms, fs);
+                    }, 1200);
+                }, 400);
+            }
+        }, 1000);
     }
 
     function showResults(ms, fs) {
         const resultsDiv = document.getElementById('results');
         const assignments = runLogic(ms, fs);
-        
-        resultsDiv.innerHTML = '<h3 style="text-align:center; margin-bottom:20px;">ASSIGNMENT</h3>';
+        resultsDiv.innerHTML = '<h3 style="text-align:center; margin:30px 0 15px; font-size:14px; color:#888;">抽選結果</h3>';
         resultsDiv.style.display = 'block';
 
         assignments.forEach((a, i) => {
             setTimeout(() => {
                 const div = document.createElement('div');
                 div.className = 'result-item';
-                div.style.transform = 'translateY(20px)';
-                div.innerHTML = `<span class="duty">${a.duty}</span><span class="name">${a.people.join(' & ')}</span>`;
+                div.innerHTML = `<span class="duty">${a.duty}</span><span class="assigned">${a.people.join(' & ')}</span>`;
                 resultsDiv.appendChild(div);
-            }, i * 200);
+            }, i * 250);
         });
         resultsDiv.scrollIntoView({behavior:'smooth'});
     }
